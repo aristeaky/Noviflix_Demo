@@ -1,83 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Loading movies..."
-        android:padding="16dp"
-        android:textSize="16sp" />
+        android:text="Movie List"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"/>
 
-    <EditText
-        android:id="@+id/inputMovieIndex"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Movie Index"
-        android:inputType="number" />
+        android:layout_height="match_parent">
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/textView"
+       >
+    </ListView>
 
-    <EditText
-        android:id="@+id/inputTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Title" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <EditText
-        android:id="@+id/inputDirector"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Director" />
-
-    <EditText
-        android:id="@+id/inputPlot"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Plot" />
-
-    <Button
-        android:id="@+id/updateButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Update Movie" />
-
-    <Button
-        android:id="@+id/getAllMoviesButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Get All Movies" />
-
-    <Button
-        android:id="@+id/deleteButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Delete Movie" />
-
-    <Button
-        android:id="@+id/addButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add Movie" />
-
-    <Button
-        android:id="@+id/specificButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Get Specific Movie" />
-
-    <Button
-        android:id="@+id/randomButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Get Random Movie" />
-</LinearLayout>
-</ScrollView>
+</RelativeLayout>
