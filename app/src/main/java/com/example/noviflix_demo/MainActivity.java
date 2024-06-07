@@ -2,9 +2,11 @@ package com.example.noviflix_demo;
 
 import java.util.UUID;
 
+import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
     ListView listView;
     MyListAdapter adapter;
+    Button addMovieBtn;
+    List<Movie> movieList;
 
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -45,11 +49,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         listView = findViewById(R.id.list);
+        addMovieBtn = findViewById(R.id.addMovieBtn);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
         loadMovies();
 
         swipeRefreshLayout.setOnRefreshListener(this::loadMovies);
+
+        addMovieBtn.setOnClickListener(v -> {
+            showEditDialog(new Movie());
+        });
     }
 
     public void loadMovies() {
@@ -58,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
                 List<Movie> movies = new MovieHandler().loadMoviesFromApi();
                 runOnUiThread(() -> {
                     if (movies != null && !movies.isEmpty()) {
-                        adapter = new MyListAdapter(MainActivity.this, movies);
+                        movieList = movies;
+                        adapter = new MyListAdapter(MainActivity.this, movieList);
                         listView.setAdapter(adapter);
                         Toast.makeText(MainActivity.this, "Movies loaded: " + movies.size(), Toast.LENGTH_SHORT).show();
                     } else {
@@ -75,5 +85,46 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void showEditDialog(Movie movie) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_edit_movie, null);
+        builder.setView(dialogView);
 
+        EditText editTitle = dialogView.findViewById(R.id.editTitle);
+        EditText editDirector = dialogView.findViewById(R.id.editDirector);
+        EditText editPlot = dialogView.findViewById(R.id.editPlot);
+
+        editTitle.setText(movie.getTitle());
+        editDirector.setText(movie.getDirector());
+        editPlot.setText(movie.getPlot());
+
+        builder.setTitle("Add Movie")
+                .setPositiveButton("Save", (dialog, which) -> {
+                    // Handle saving the edited movie
+                    movie.setTitle(editTitle.getText().toString());
+                    movie.setDirector(editDirector.getText().toString());
+                    movie.setPlot(editPlot.getText().toString());
+
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        try {
+                            if (new MovieHandler().addNewMovie(movie)) {
+                                runOnUiThread(() -> {
+                                    movieList.add(movie);
+                                    adapter.notifyDataSetChanged();
+                                    Toast.makeText(MainActivity.this, "Movie updated", Toast.LENGTH_SHORT).show();
+                                });
+                            }
+                        } catch (Exception e) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(MainActivity.this, "Failed to update movie " + movie.getTitle(), Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 }

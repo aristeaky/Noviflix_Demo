@@ -63,7 +63,7 @@ public class MovieHandler {
 
 
 
-    public void addNewMovie(Movie movie) throws Exception {
+    public boolean addNewMovie(Movie movie) throws Exception {
         URL url = new URL("http://dimcost421.ddns.net:9200/api/v1/movies/");
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setRequestMethod("POST");
@@ -91,9 +91,11 @@ public class MovieHandler {
             httpURLConnection.disconnect();
 
             Log.d(TAG, "POST Response: " + response);
+            return true;
         } else {
             Log.e(TAG, "POST request failed with response code " + responseCode);
         }
+        return false;
     }
 
     public boolean updateMovie(Movie movie) throws Exception {

@@ -66,20 +66,7 @@ public class MyListAdapter extends ArrayAdapter<Movie> {
         });
 
         holder.deleteBtn.setOnClickListener(v -> {
-            Executors.newSingleThreadExecutor().execute(() -> {
-                try {
-                    if (movieHandler.deleteMovie(movie)) {
-                        activity.runOnUiThread(() -> {
-                            remove(movie);
-                            notifyDataSetChanged();
-                            Toast.makeText(activity, "Successfully deleted", Toast.LENGTH_SHORT).show();
-                        });
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(activity, "Failed to delete " + movie.getTitle(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
+           deleteDialog(movie);
         });
 
         holder.editBtn.setOnClickListener(v -> {
@@ -124,6 +111,47 @@ public class MyListAdapter extends ArrayAdapter<Movie> {
                             });
                         }
                     });
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void deleteDialog(Movie movie) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        LayoutInflater inflater = activity.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_edit_movie, null);
+        builder.setView(dialogView);
+
+        EditText editTitle = dialogView.findViewById(R.id.editTitle);
+        EditText editDirector = dialogView.findViewById(R.id.editDirector);
+        EditText editPlot = dialogView.findViewById(R.id.editPlot);
+
+        editTitle.setText(movie.getTitle());
+        editDirector.setText(movie.getDirector());
+        editPlot.setText(movie.getPlot());
+
+        editTitle.setEnabled(false);
+        editDirector.setEnabled(false);
+        editPlot.setEnabled(false);
+
+        builder.setTitle("Delete Movie")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        try {
+                            if (movieHandler.deleteMovie(movie)) {
+                                activity.runOnUiThread(() -> {
+                                    remove(movie);
+                                    notifyDataSetChanged();
+                                    Toast.makeText(activity, "Successfully deleted", Toast.LENGTH_SHORT).show();
+                                });
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(activity, "Failed to delete " + movie.getTitle(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
