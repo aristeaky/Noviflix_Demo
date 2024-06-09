@@ -1,5 +1,6 @@
 package com.example.noviflix_demo;
-
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.util.Log;
@@ -86,36 +87,67 @@ public class MyListAdapter extends ArrayAdapter<Movie> {
         EditText editDirector = dialogView.findViewById(R.id.editDirector);
         EditText editPlot = dialogView.findViewById(R.id.editPlot);
 
-        editTitle.setText(movie.getTitle());
-        editDirector.setText(movie.getDirector());
-        editPlot.setText(movie.getPlot());
+        String initialTitle = movie.getTitle();
+        String initialDirector = movie.getDirector();
+        String initialPlot = movie.getPlot();
+
+        editTitle.setText(initialTitle);
+        editDirector.setText(initialDirector);
+        editPlot.setText(initialPlot);
 
         builder.setTitle("Edit Movie")
-                .setPositiveButton("Save", (dialog, which) -> {
-                    // Handle saving the edited movie
-                    movie.setTitle(editTitle.getText().toString());
-                    movie.setDirector(editDirector.getText().toString());
-                    movie.setPlot(editPlot.getText().toString());
-
-                    Executors.newSingleThreadExecutor().execute(() -> {
-                        try {
-                            if (movieHandler.updateMovie(movie)) {
-                                activity.runOnUiThread(() -> {
-                                    notifyDataSetChanged();
-                                    Toast.makeText(activity, "Movie updated", Toast.LENGTH_SHORT).show();
-                                });
-                            }
-                        } catch (Exception e) {
-                            activity.runOnUiThread(() -> {
-                                Toast.makeText(activity, "Failed to update movie " + movie.getTitle(), Toast.LENGTH_SHORT).show();
-                            });
-                        }
-                    });
-                })
+                .setPositiveButton("Save", null)
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
         AlertDialog dialog = builder.create();
         dialog.show();
+
+        Button saveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        saveButton.setEnabled(false);
+
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean isChanged = !editTitle.getText().toString().equals(initialTitle) ||
+                        !editDirector.getText().toString().equals(initialDirector) ||
+                        !editPlot.getText().toString().equals(initialPlot);
+                saveButton.setEnabled(isChanged);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+
+        editTitle.addTextChangedListener(textWatcher);
+        editDirector.addTextChangedListener(textWatcher);
+        editPlot.addTextChangedListener(textWatcher);
+
+        saveButton.setOnClickListener(v -> {
+            movie.setTitle(editTitle.getText().toString());
+            movie.setDirector(editDirector.getText().toString());
+            movie.setPlot(editPlot.getText().toString());
+
+            Executors.newSingleThreadExecutor().execute(() -> {
+                try {
+                    if (movieHandler.updateMovie(movie)) {
+                        activity.runOnUiThread(() -> {
+                            notifyDataSetChanged();
+                            Toast.makeText(activity, "Movie updated", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        });
+                    }
+                } catch (Exception e) {
+                    activity.runOnUiThread(() -> {
+                        Toast.makeText(activity, "Failed to update movie " + movie.getTitle(), Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+        });
     }
 
     private void deleteDialog(Movie movie) {
@@ -138,20 +170,28 @@ public class MyListAdapter extends ArrayAdapter<Movie> {
 
         builder.setTitle("Delete Movie")
                 .setPositiveButton("Delete", (dialog, which) -> {
-                    Executors.newSingleThreadExecutor().execute(() -> {
-                        try {
-                            if (movieHandler.deleteMovie(movie)) {
-                                activity.runOnUiThread(() -> {
-                                    remove(movie);
-                                    notifyDataSetChanged();
-                                    Toast.makeText(activity, "Successfully deleted", Toast.LENGTH_SHORT).show();
+                    new AlertDialog.Builder(activity)
+                            .setTitle("Confirm Delete")
+                            .setMessage("Are you sure you want to delete this movie?")
+                            .setPositiveButton("Yes", (confirmDialog, confirmWhich) -> {
+                                Executors.newSingleThreadExecutor().execute(() -> {
+                                    try {
+                                        if (movieHandler.deleteMovie(movie)) {
+                                            activity.runOnUiThread(() -> {
+                                                remove(movie);
+                                                notifyDataSetChanged();
+                                                Toast.makeText(activity, "Successfully deleted", Toast.LENGTH_SHORT).show();
+                                            });
+                                        }
+                                    } catch (Exception e) {
+                                        activity.runOnUiThread(() -> {
+                                            Toast.makeText(activity, "Failed to delete " + movie.getTitle(), Toast.LENGTH_SHORT).show();
+                                        });
+                                    }
                                 });
-                            }
-                        } catch (Exception e) {
-                            Toast.makeText(activity, "Failed to delete " + movie.getTitle(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
+                            })
+                            .setNegativeButton("No", (confirmDialog, confirmWhich) -> confirmDialog.dismiss())
+                            .show();
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 
