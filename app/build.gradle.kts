@@ -33,6 +33,8 @@ android {
 
 dependencies {
 
+    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
     implementation ("com.google.code.gson:gson:2.8.8")
     implementation(libs.appcompat)
     implementation(libs.material)

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Title" />
+
+    <EditText
+        android:id="@+id/editDirector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Director" />
+
+    <EditText
+        android:id="@+id/editPlot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Plot" />
+</LinearLayout>

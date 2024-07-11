@@ -2,10 +2,11 @@ package com.example.noviflix_demo;
 
 public class Movie {
 
-   private final String id;
+    private String id;
     private String title;
     private String director;
     private String plot;
+
     public Movie(String id, String title, String director, String plot) {
         this.id = id;
         this.title = title;
@@ -44,11 +45,13 @@ public class Movie {
 
     @Override
     public String toString() {
-        return "Movie: "  +
-        " title='" + title + "'\n" +
+        return "Movie: " +
+                " title='" + title + "'\n" +
                 " director='" + director + "'\n" +
                 " plot='" + plot + "'\n"
                 ;
     }
 
+    public Movie() {
+    }
 }
